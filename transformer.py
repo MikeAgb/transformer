@@ -26,8 +26,6 @@ def get_positional_encoding(seq_len, dim):
     return positional_embed
                                              
 
-
-
 class AttentionHead(Module):
     
     def __init__(self, embed_dim, head_dim, mask=None) -> None:
@@ -56,13 +54,11 @@ class MultiHeadAttention(Module):
             [AttentionHead(hidden_size, head_dim) for _ in range(num_heads)]
         )
         
-      #  self.output = Linear(hidden_size*num_heads, hidden_size)
         self.output = Linear(num_heads*head_dim, hidden_size)
         
     def forward(self, h):
         x = torch.cat([head(h) for head in self.heads], dim = -1)
         return self.output(x) 
-
 
     
 class FeedForward(Module):
@@ -70,9 +66,6 @@ class FeedForward(Module):
     # rule of thumb: hidden size of first layer 4x emebddding dimension
      def __init__(self,hidden_size, inter_size, dropout_prob = 0.3) -> None:
         super().__init__()
-        # equivalent to dense layer or a position wise feed-forward network
-       # self.conv1 = Conv1d(in_channels = seq_len, out_channels = hidden_dim, kernel_size=1)
-       # self.conv2 = Conv1d(in_channels = hidden_dim, out_channels = seq_len, kernel_size = 1)
         self.conv1 = Linear(hidden_size, inter_size)
         self.conv2 = Linear(inter_size, hidden_size)
         # standard to use gelu
@@ -156,7 +149,6 @@ class TransformerEncoder(Module):
             x = layer(x)
         return x
     
-
 class TransformerForPrediction(Module):
     
     def __init__(self, encoder: TransformerEncoder, dropout_prob = 0.3) -> None:
@@ -176,7 +168,6 @@ class TransformerForPrediction(Module):
         x = torch.relu(x)
         return self.out(x)
 
-        
 class TransformerForBinaryClassification(Module):
     
     def __init__(self,encoder: TransformerEncoder, dropout_prob = 0.3) -> None:
